@@ -29,5 +29,10 @@ namespace Discerniy.Domain.Responses
             GroupId = robot.GroupId;
             AccessLevel = robot.AccessLevel;
         }
+
+        public static implicit operator RobotResponse(RobotModel robot)
+        {
+            return new RobotResponse(robot);
+        }
     }
 }

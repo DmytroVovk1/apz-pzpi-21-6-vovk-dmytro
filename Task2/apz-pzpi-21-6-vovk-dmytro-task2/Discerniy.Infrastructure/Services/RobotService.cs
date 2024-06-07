@@ -49,7 +49,7 @@ namespace Discerniy.Infrastructure.Services
             return new PageResponse<RobotResponse>(robots.Items.Select(r => new RobotResponse(r)).ToList(), robots.Total, request);
         }
 
-        public async Task<RobotCreatedResponse> CreateRobot(CreateRobotRequest request)
+        public async Task<RobotResponse> CreateRobot(CreateRobotRequest request)
         {
             var client = await GetCurrentClient();
             client.Permissions.Has(p => p.Robots.CanCreate);
@@ -66,7 +66,7 @@ namespace Discerniy.Infrastructure.Services
             };
 
             robot = await robotRepository.Create(robot);
-            return new RobotCreatedResponse(robot);
+            return robot;
         }
 
         public async Task<RobotResponse> Get(string id)
@@ -95,6 +95,15 @@ namespace Discerniy.Infrastructure.Services
 
             robot = await robotRepository.Update(robot);
             return new RobotResponse(robot);
+        }
+
+        public async Task<RobotTokenResponse> GetToken(string id)
+        {
+            var client = await GetCurrentClient();
+            client.Permissions.Has(p => p.Robots.CanRead);
+
+            var robot = await robotRepository.Get(id) ?? throw new BadRequestException("Robot not found");
+            return new RobotTokenResponse(robot);
         }
     }
 }

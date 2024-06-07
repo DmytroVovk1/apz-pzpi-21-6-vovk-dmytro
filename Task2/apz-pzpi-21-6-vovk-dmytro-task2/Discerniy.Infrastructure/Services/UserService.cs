@@ -207,8 +207,8 @@ namespace Discerniy.Infrastructure.Services
 
         public async Task<UserResponse> GetSelfShort()
         {
-            var client = await GetCurrentClient();
-            return await repository.Get(client.Id) ?? throw new BadRequestException("User not found");
+            var client = await authService.GetUser() ?? throw new BadRequestException("Permission denied");
+            return client ?? throw new BadRequestException("User not found");
         }
 
         public async Task<UserResponseDetailed> GetSelf()

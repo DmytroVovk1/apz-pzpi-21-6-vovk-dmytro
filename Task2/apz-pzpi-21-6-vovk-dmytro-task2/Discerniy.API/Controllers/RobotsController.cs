@@ -30,6 +30,12 @@ namespace Discerniy.API.Controllers
             return await RunService(() => robotService.Get(id));
         }
 
+        [HttpGet("{id}/token")]
+        public async Task<IActionResult> GetToken(string id)
+        {
+            return await RunService(() => robotService.GetToken(id));
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRobotRequest request)
         {
