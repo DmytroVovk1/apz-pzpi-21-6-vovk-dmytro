@@ -1,5 +1,6 @@
 ﻿using Discerniy.Domain.Entity.DomainEntity;
 using Discerniy.Domain.Entity.Options;
+using Discerniy.Domain.Entity.RabbitMqModels;
 using Discerniy.Domain.Entity.SubEntity;
 using Discerniy.Domain.Exceptions;
 using Discerniy.Domain.Interface.Entity;
@@ -21,6 +22,7 @@ namespace Discerniy.Infrastructure.Services
         private readonly IEmailService emailService;
         private readonly IConfirmationManager confirmationManager;
         private readonly IRandomGenerator randomGenerator;
+        private readonly IWebSocketMessagePublisher webSocketMessagePublisher;
         private readonly UrlOptions urlOptions;
 
         private async Task<UserModel> GetCurrentClient()
@@ -50,6 +52,7 @@ namespace Discerniy.Infrastructure.Services
             IEmailService emailService,
             IConfirmationManager confirmationManager,
             IRandomGenerator randomGenerator,
+            IWebSocketMessagePublisher webSocketMessagePublisher,
             UrlOptions urlOptions)
             : base(repository, groupRepository, authService)
         {
@@ -59,6 +62,7 @@ namespace Discerniy.Infrastructure.Services
             this.emailService = emailService;
             this.confirmationManager = confirmationManager;
             this.randomGenerator = randomGenerator;
+            this.webSocketMessagePublisher = webSocketMessagePublisher;
             this.urlOptions = urlOptions;
         }
 
@@ -317,6 +321,29 @@ namespace Discerniy.Infrastructure.Services
 
             client.Permissions.Update(permissions, currentClient.Permissions);
             return await repository.Update(client);
+        }
+
+        public async Task<UserResponse> UpdateLocationSecondsInterval(string id, int secondsInterval)
+        {
+            var currentClient = await GetCurrentClient();
+            currentClient.Permissions.Has(p => p.Users.CanUpdateScanRadius);
+            var user = await repository.Get(id) ?? throw new BadRequestException("User not found");
+
+            if (user.AccessLevel >= currentClient.AccessLevel)
+            {
+                throw new BadRequestException("You cannot update a user with a higher access level than your own");
+            }
+
+            user.UpdateLocationSecondsInterval = secondsInterval;
+
+            user = await repository.Update(user);
+
+            webSocketMessagePublisher.Publish(new UpdateUserInterval(user), new Dictionary<string, string>()
+            {
+                { "function", "updateUserUpdateLocationInterval" }
+            });
+
+            return await repository.Update(user);
         }
     }
 }

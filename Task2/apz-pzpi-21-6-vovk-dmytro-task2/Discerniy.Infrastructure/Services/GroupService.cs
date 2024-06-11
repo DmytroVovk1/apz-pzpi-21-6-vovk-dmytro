@@ -219,7 +219,6 @@ namespace Discerniy.Infrastructure.Services
         public async Task<IList<GroupResponse>> GetMyGroups()
         {
             var currentUser = await GetCurrentClient();
-            currentUser.Permissions.Has(p => p.Groups.CanRead);
 
             var groups = new List<GroupModel>();
             bool hasListChanged = false;

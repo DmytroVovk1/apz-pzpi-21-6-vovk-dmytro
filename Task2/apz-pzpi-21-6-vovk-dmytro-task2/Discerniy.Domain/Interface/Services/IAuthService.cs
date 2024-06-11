@@ -9,8 +9,8 @@ namespace Discerniy.Domain.Interface.Services
     {
         void SetHttpContext(HttpContext httpContext);
         Task<TokenResponse> Login(LoginModelRequest request);
-        Task<TokenResponse> GenerateDeviceToken(string userId);
-        Task<TokenResponse> RefreshDeviceToken();
+        Task<DeviceTokenResponse> GenerateDeviceToken(string userId);
+        Task<DeviceTokenResponse> RefreshDeviceToken();
         Task<string> Refresh();
         Task<UserModel> GetUserByDevice();
         Task<UserModel> GetUser();

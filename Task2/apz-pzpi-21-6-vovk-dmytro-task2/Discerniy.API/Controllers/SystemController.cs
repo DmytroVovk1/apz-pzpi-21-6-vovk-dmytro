@@ -11,9 +11,7 @@ namespace Discerniy.API.Controllers
         [HttpGet("time")]
         public IActionResult Time()
         {
-            DateTime now = DateTime.UtcNow;
-            long unixTime = (now.ToUniversalTime().Ticks / 10000000) - 621672192;
-            return Ok(unixTime);
+            return Ok(Math.Round(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds));
         }
     }
 }

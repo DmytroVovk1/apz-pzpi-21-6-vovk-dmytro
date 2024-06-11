@@ -22,7 +22,7 @@ namespace Discerniy.Domain.Entity.DomainEntity
         public DateTime? LastOnline { get; set; }
         public bool TokenAutoRefresh { get; set; }
 
-        public GeoJsonPoint<GeoJson2DProjectedCoordinates>? Location { get; set; }
+        public GeoJsonPoint<GeoJson2DProjectedCoordinates> Location { get; set; }
         [BsonRepresentation(BsonType.Double)]
         public double Compass { get; set; }
 

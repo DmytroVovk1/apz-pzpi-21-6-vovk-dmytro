@@ -31,6 +31,7 @@ namespace Discerniy.Infrastructure.Repository
             robot.CreatedAt = DateTime.UtcNow;
             robot.LastOnline = null;
             robot.Key = randomGenerator.GenerateString(robotOptions.TokenLength);
+            robot.Location = new GeoJsonPoint<GeoJson2DProjectedCoordinates>(new GeoJson2DProjectedCoordinates(0, 0));
             return await Collection.InsertOneAsync(robot).ContinueWith(t => robot);
         }
 

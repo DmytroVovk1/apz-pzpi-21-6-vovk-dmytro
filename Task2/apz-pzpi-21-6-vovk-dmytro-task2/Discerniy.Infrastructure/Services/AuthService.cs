@@ -70,10 +70,10 @@ namespace Discerniy.Infrastructure.Services
             client.Sessions.Add(session);
             await userRepository.Update(client);
 
-            return new TokenResponse(token, session.ExpiresAt);
+            return new TokenResponse(token, session.ExpiresAt, session.LastUpdated);
         }
 
-        public async Task<TokenResponse> GenerateDeviceToken(string userId)
+        public async Task<DeviceTokenResponse> GenerateDeviceToken(string userId)
         {
             var currentUser = await this.GetUser();
 
@@ -93,10 +93,10 @@ namespace Discerniy.Infrastructure.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = GenerateDeviceJwtToken(user);
 
-            return new TokenResponse(tokenHandler.WriteToken(token), token.ValidTo);
+            return new DeviceTokenResponse(tokenHandler.WriteToken(token), token.ValidTo, token.ValidFrom, user.UpdateLocationSecondsInterval);
         }
 
-        public async Task<TokenResponse> RefreshDeviceToken()
+        public async Task<DeviceTokenResponse> RefreshDeviceToken()
         {
             var clientType = httpContext.User.FindFirst(ClaimTypes.Role)?.Value ?? throw new UnauthorizedAccessException();
 
@@ -116,7 +116,7 @@ namespace Discerniy.Infrastructure.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = GenerateDeviceJwtToken(user);
 
-            return new TokenResponse(tokenHandler.WriteToken(token), token.ValidTo);
+            return new DeviceTokenResponse(tokenHandler.WriteToken(token), token.ValidTo, token.ValidFrom, user.UpdateLocationSecondsInterval);
         }
 
         public async Task<UserModel> GetUser()
@@ -215,6 +215,7 @@ namespace Discerniy.Infrastructure.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             session.ExpiresAt = token.ValidTo;
+            session.LastUpdated = DateTime.UtcNow;
 
             return tokenHandler.WriteToken(token);
         }

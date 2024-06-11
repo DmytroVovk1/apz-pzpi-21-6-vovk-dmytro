@@ -6,6 +6,5 @@ namespace Discerniy.Domain.Interface.Services
     public interface IDeviceService
     {
         Task<DeviceInfoResponse> GetDeviceInfo();
-        Task<TokenResponse> RefreshToken();
     }
 }

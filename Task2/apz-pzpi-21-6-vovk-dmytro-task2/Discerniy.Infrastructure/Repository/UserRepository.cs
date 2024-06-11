@@ -36,6 +36,7 @@ namespace Discerniy.Infrastructure.Repository
             user.CreatedAt = DateTime.Now;
             user.LastOnline = null;
             user.SecretKey = randomGenerator.GenerateString(authServiceOption.SecretKeyCharacterCount);
+            user.Location = new GeoJsonPoint<GeoJson2DProjectedCoordinates>(new GeoJson2DProjectedCoordinates(0, 0));
             await Collection.InsertOneAsync(user);
             return user;
         }

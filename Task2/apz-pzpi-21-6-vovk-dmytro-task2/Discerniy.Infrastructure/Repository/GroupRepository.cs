@@ -1,4 +1,5 @@
-﻿using Discerniy.Domain.Entity.DomainEntity;
+﻿using Amazon.Runtime.Internal;
+using Discerniy.Domain.Entity.DomainEntity;
 using Discerniy.Domain.Entity.Options;
 using Discerniy.Domain.Interface.Entity;
 using Discerniy.Domain.Interface.Repositories;
@@ -7,6 +8,7 @@ using Discerniy.Domain.Responses;
 using Microsoft.Extensions.Caching.Distributed;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace Discerniy.Infrastructure.Repository
 {
@@ -17,6 +19,23 @@ namespace Discerniy.Infrastructure.Repository
         public GroupRepository(MongoDbOptions dbOption, IDistributedCache cache) : base(dbOption, dbOption.Collections.Groups)
         {
             this.cache = cache;
+        }
+
+
+        public override Task<GroupModel> Create(GroupModel entity)
+        {
+            entity.CreatedAt = DateTime.UtcNow;
+            if(entity.ResponsibilityArea == null)
+            {
+                var linearRingCoordinates = new GeoJsonLinearRingCoordinates<GeoJson2DProjectedCoordinates>(positions: new[]
+                {
+                    new GeoJson2DProjectedCoordinates(0, 0)
+                });
+                var polygonCoordinates = new GeoJsonPolygonCoordinates<GeoJson2DProjectedCoordinates>(linearRingCoordinates);
+
+                entity.ResponsibilityArea = new GeoJsonPolygon<GeoJson2DProjectedCoordinates>(polygonCoordinates);
+            }
+            return base.Create(entity);
         }
 
         public async Task<IList<GroupModel>> GetByMember(string userId)

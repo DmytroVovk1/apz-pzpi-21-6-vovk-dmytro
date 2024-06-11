@@ -23,5 +23,6 @@ namespace Discerniy.Domain.Interface.Services
         Task<UserResponseDetailed> UpdateBaseInformation(string id, UpdateUserBaseInformationRequest request);
         Task<UserResponse> UpdateSelfEmail(string email);
         Task<UserResponse> UpdatePermissions(string id, ClientPermissions permissions);
+        Task<UserResponse> UpdateLocationSecondsInterval(string id, int secondsInterval);
     }
 }

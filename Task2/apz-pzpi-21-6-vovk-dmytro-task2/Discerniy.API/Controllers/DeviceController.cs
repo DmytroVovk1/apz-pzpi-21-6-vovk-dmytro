@@ -22,12 +22,5 @@ namespace Discerniy.API.Controllers
         {
             return await RunService(deviceService.GetDeviceInfo);
         }
-
-        [Authorize(Roles = "device")]
-        [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken()
-        {
-            return await RunService(deviceService.RefreshToken);
-        }
     }
 }

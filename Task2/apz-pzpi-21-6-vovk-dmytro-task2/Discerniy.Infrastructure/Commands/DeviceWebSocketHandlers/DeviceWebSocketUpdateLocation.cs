@@ -66,8 +66,13 @@ namespace Discerniy.Infrastructure.Commands.DeviceWebSocketHandlers
                 user.Compass = request.Payload.Compass;
                 user = await userRepository.Update(user);
 
-                if(user.Groups.Count == 0)
+                if (user.Groups.Count == 0)
                 {
+                    webSocketMessagePublisher.Publish(new LocationResponse(user), new Dictionary<string, string>()
+                    {
+                        { "userId", userId },
+                        { "function", "LocationUpdated" }
+                    });
                     await webSocket.SendAsync(new ErrorResponse("You are not in any group", Command));
                     return;
                 }
@@ -75,7 +80,6 @@ namespace Discerniy.Infrastructure.Commands.DeviceWebSocketHandlers
                 webSocketMessagePublisher.Publish(new LocationResponse(user), new Dictionary<string, string>()
                 {
                     { "groups", string.Join(',', user.Groups) },
-                    { "userId", userId },
                     { "function", "LocationUpdated" }
                 });
 

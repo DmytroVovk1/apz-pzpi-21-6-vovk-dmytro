@@ -107,6 +107,7 @@ builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp =>
 });
 builder.Services.AddSingleton<IHashService, HashService>();
 builder.Services.AddSingleton<IRandomGenerator, RandomGenerator>();
+builder.Services.AddSingleton<IDeviceWebSocketManager, DeviceWebSocketManager>();
 builder.Services.AddScoped<IConfirmationManager, ConfirmationManager>();
 
 builder.Services.AddSingleton<IMarkRepository, MarkRepository>();
@@ -124,6 +125,7 @@ builder.Services.AddScoped<IClientService<UserModel, UserResponse>, UserService>
 builder.Services.AddScoped<IClientService<RobotModel, RobotResponse>, RobotService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
 
 builder.Services.LoadCOSR();
 
@@ -146,6 +148,7 @@ builder.Services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
 builder.Services.AddSingleton<IMessagePublisherFactory, MessagePublisherFactory>();
 
 builder.Services.AddSingleton<IWebSocketMessagePublisher, WebSocketMessagePublisher>();
+builder.Services.AddSingleton<IRabbitMqWebSocketHandler, UpdateUserUpdateLocationIntervalWebSockerHandler>();
 builder.Services.AddSingleton<IRabbitMqWebSocketHandler, LocationUpdatedWebSockerHandler>();
 builder.Services.AddSingleton<IRabbitMqWebSocketHandler, SendNearClientsWebSockerHandler>();
 builder.Services.AddSingleton<IRabbitMqWebSocketHandler, WarningWebSockerHandler>();

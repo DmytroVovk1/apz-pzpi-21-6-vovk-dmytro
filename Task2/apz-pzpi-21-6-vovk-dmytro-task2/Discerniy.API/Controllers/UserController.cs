@@ -104,6 +104,11 @@ namespace Discerniy.API.Controllers
         {
             return await RunService(() => userService.UpdateScanRadius(id, scanRadius));
         }
+        [HttpPut("{id}/updateLocationInterval")]
+        public async Task<IActionResult> UpdateLocationInterval(string id, [FromBody] int updateLocationInterval)
+        {
+            return await RunService(() => userService.UpdateLocationSecondsInterval(id, updateLocationInterval));
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)

@@ -1,9 +1,7 @@
-﻿using Discerniy.Domain.Entity.SubEntity;
+﻿using Discerniy.Domain.Entity;
 using Discerniy.Domain.Interface.Services;
-using System.Net.WebSockets;
+using Discerniy.Infrastructure.Services;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace Discerniy.API.Middleware
 {
@@ -11,11 +9,13 @@ namespace Discerniy.API.Middleware
     {
         private readonly RequestDelegate next;
         private readonly ILogger<DeviceWebSocketMiddleware> logger;
+        private readonly IDeviceWebSocketManager deviceWebSocketManager;
 
-        public DeviceWebSocketMiddleware(RequestDelegate next, ILogger<DeviceWebSocketMiddleware> logger)
+        public DeviceWebSocketMiddleware(RequestDelegate next, ILogger<DeviceWebSocketMiddleware> logger, IDeviceWebSocketManager deviceWebSocketManager)
         {
             this.next = next;
             this.logger = logger;
+            this.deviceWebSocketManager = deviceWebSocketManager;
         }
 
         public async Task Invoke(HttpContext context)
@@ -28,22 +28,23 @@ namespace Discerniy.API.Middleware
 
             if (context.WebSockets.IsWebSocketRequest)
             {
-                IDeviceWebSocketCommandHandler deviceWebSocketCommandHandler = context.RequestServices.GetRequiredService<IDeviceWebSocketCommandHandler>();
-
-                string userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-
-                var socket = await context.WebSockets.AcceptWebSocketAsync();
-                while (socket.State != WebSocketState.Closed && !context.RequestAborted.IsCancellationRequested)
+                try
                 {
-                    var receiveBuffer = new byte[1024];
-                    var receiveResult = await socket.ReceiveAsync(receiveBuffer, context.RequestAborted);
-                    if (receiveResult.MessageType != WebSocketMessageType.Text || receiveResult.EndOfMessage == false)
-                    {
-                        logger.LogDebug("Received invalid message type");
-                        continue;
-                    }
-                    var message = Encoding.UTF8.GetString(receiveBuffer, 0, receiveResult.Count);
-                    await deviceWebSocketCommandHandler.HandleCommand(userId, socket, context, message, context.RequestAborted);
+                    string userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                    var socket = await context.WebSockets.AcceptWebSocketAsync();
+
+                    var connectionModel = new WebSocketConnetion(context, socket, userId);
+                    deviceWebSocketManager.Add(connectionModel);
+                    deviceWebSocketManager.AddToGroup(connectionModel.ConnectionId, userId);
+                    await connectionModel.Handle();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogDebug(ex, "Error while handling websocket connection");
+                }
+                finally
+                {
+                    deviceWebSocketManager.Remove(context.TraceIdentifier);
                 }
             }
             else

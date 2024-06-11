@@ -43,7 +43,7 @@ namespace Discerniy.Domain.Entity.DomainEntity
         [BsonRepresentation(BsonType.Boolean)]
         public bool TokenAutoRefresh { get; set; }
         public ClientType Type => ClientType.User;
-        public GeoJsonPoint<GeoJson2DProjectedCoordinates>? Location { get; set; }
+        public GeoJsonPoint<GeoJson2DProjectedCoordinates> Location { get; set; }
         [BsonRepresentation(BsonType.Double)]
         public double Compass { get; set; }
         public IList<ClientSession> Sessions { get; set; } = new List<ClientSession>();
